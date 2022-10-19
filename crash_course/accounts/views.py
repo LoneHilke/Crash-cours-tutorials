@@ -28,6 +28,7 @@ def registerPage(request):
                 user.groups.add(group)
                 Customer.objects.create(
                     user=user,
+                    name=user.username,
                 )
                 messages.success(request, 'Account was created for ' + username)
 
@@ -102,17 +103,17 @@ def userPage(request):
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['customer'])
 def accountSettings(request):
-    customer = request.user.customer
-    form = CustomerForm(instance=customer)
+        customer = request.user.customer
+        form = CustomerForm(instance=customer)
 
-    if request.method == 'POST':
-	    form = CustomerForm(request.POST, request.FILES,instance=customer)
-        if form.is_valid():
-            form.save()
+        if request.method == 'POST':
+            form = CustomerForm(request.POST, request.FILES,instance=customer)
+            if form.is_valid():
+                form.save()
 
 
-    context = {'form':form}
-    return render(request, 'accounts/account_settings.html', context)
+        context = {'form':form}
+        return render(request, 'accounts/account_settings.html', context)
 
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['admin'])
@@ -150,7 +151,7 @@ def createOrder(request, pk):
     #form = OrderForm(initial={'customer': customer})
     if request.method == 'POST':
         #print('Printing POST: ', request.POST)
-        #form = OrderForm(request.POST)
+        form = OrderForm(request.POST)
         formset = OrderFormSet(request.POST, instance=customer)
         if formset.is_valid():
             formset.save()
@@ -166,6 +167,7 @@ def updateOrder(request, pk):
 
     order = Order.objects.get(id=pk)
     form = OrderForm(instance=order)
+    print('ORDER:', order)
 
     if request.method == 'POST':
         form = OrderForm(request.POST, instance=order)
